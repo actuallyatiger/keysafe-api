@@ -3,7 +3,7 @@ import hashlib
 import argon2
 
 
-class Hasher:
+class Encryptor:
     """
     Class for handling hashing and verifying passwords.
     Methods: hash, verify
@@ -12,28 +12,28 @@ class Hasher:
     def __init__(self):
         """
         Settings: 2 parallellism, 192MB memory, 6 iterations,
-        64 bytes hash length, 16 bytes salt length.
+        32 bytes hash length, 16 bytes salt length.
         """
         self.hasher = argon2.PasswordHasher(
-            time_cost=6, memory_cost=192 * 1024, parallelism=2, hash_len=64, salt_len=16
+            time_cost=6, memory_cost=192 * 1024, parallelism=2, hash_len=32, salt_len=16
         )
 
-    def sha512_hash(self, password):
+    def sha256_hash(self, password):
         """
-        Hashes a password using SHA512
+        Hashes a password using SHA256
         :param password: The password to hash
         :return: The hashed password
         """
-        return hashlib.sha512(password.encode()).hexdigest()
+        return hashlib.sha256(password.encode()).hexdigest()
 
-    def sha512_verify(self, password, password_hash):
+    def sha256_verify(self, password, password_hash):
         """
-        Verifies a password against a SHA512 hash
+        Verifies a password against a SHA256 hash
         :param password: The password to verify
         :param hash: The hash to verify against
         :return: True if the password matches the hash, False otherwise
         """
-        return compare_digest(self.sha512_hash(password), password_hash)
+        return compare_digest(self.sha256_hash(password), password_hash)
 
     def hash(self, password):
         """
@@ -52,3 +52,19 @@ class Hasher:
         :return: True if the password matches the hash, False otherwise
         """
         return self.hasher.verify(password_hash, password)
+
+    def encrypt(self, data):
+        """
+        Encrypts data using AES
+        :param data: The data to encrypt
+        :return: The encrypted data
+        """
+        pass
+
+    def decrypt(self, data):
+        """
+        Decrypts data using AES
+        :param data: The data to decrypt
+        :return: The decrypted data
+        """
+        pass
