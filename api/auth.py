@@ -1,11 +1,12 @@
 from flask import Blueprint, request
 from client import get_client
-from cipher import Hasher
+from cipher import Hasher, Encryptor
 
 auth_bp = Blueprint("auth_bp", __name__)
 
 client = get_client()
 hasher = Hasher()
+encryptor = Encryptor()
 
 
 @auth_bp.route("/login", methods=["POST"])
@@ -53,6 +54,8 @@ def register():
 
     email_hash = hasher.sha256_hash(email)
     password_hash = hasher.argon_hash(password)
+    encrypted_name = encryptor.encrypt(name)
+    encrypted_email = encryptor.encrypt(email)
 
     # Check email is not already registered
     doc = client.collection("users").document(email_hash).get()
@@ -61,6 +64,10 @@ def register():
 
     # Add user to users collection
     client.collection("users").document(email_hash).set(
-        {"email": email_hash, "name": name, "password": password_hash}
+        {
+            "email": encrypted_email,
+            "name": encrypted_name,
+            "password": password_hash,
+        }
     )
     return {"token": "fake-token"}, 201
