@@ -46,14 +46,18 @@ class Hasher:
 
         return self.hasher.hash(password)
 
-    def argon_verify(self, password: str, password_hash: str) -> bool:
+    def argon_verify(self, password_hash: str, password: str) -> bool:
         """
         Verifies a password against an Argon2 hash
         :param password: The password to verify
         :param hash: The hash to verify against
         :return: True if the password matches the hash, False otherwise
         """
-        return self.hasher.verify(password_hash, password)
+        try:
+            self.hasher.verify(password_hash, password)
+            return True
+        except argon2.exceptions.VerifyMismatchError:
+            return False
 
 
 class Encryptor:

@@ -21,16 +21,17 @@ def login():
     # Get the user from the database.
     doc = client.collection().document(email_hash).get()
 
-    # Check if the user exists.
-    if not doc.exists:
-        return {"error": "User not found."}, 404
+    try:
+        user = doc.to_dict()
+        password_hash = user["password"]
+    except ValueError:
+        password_hash = ""
 
-    user = doc.to_dict()
-    valid = hasher.argon_verify(user["password"], password)
+    valid_password = hasher.argon_verify(password_hash, password)
 
-    # Check if the password is valid.
-    if not valid:
-        return {"error": "Invalid password."}, 401
+    # Check if the user exists and the password is valid.
+    if not (doc.exists and valid_password):
+        return {"error": "Username or password is invalid"}, 401
 
     return {"token": "fake-token"}, 200
 
