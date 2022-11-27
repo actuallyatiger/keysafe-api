@@ -1,5 +1,7 @@
 from hmac import compare_digest
+import os
 from Crypto.Hash import SHA256
+from Crypto.Cipher import AES
 import argon2
 
 
@@ -52,3 +54,38 @@ class Hasher:
         :return: True if the password matches the hash, False otherwise
         """
         return self.hasher.verify(password_hash, password)
+
+
+class Encryptor:
+    """
+    Class for handling encryption and decryption.
+    Algorithm: AES-256-GCM.
+    Methods: encrypt, decrypt
+    """
+
+    def __init__(self) -> None:
+        self.key = bytes.fromhex(os.environ.get("AES_KEY"))
+
+    def encrypt(self, plaintext: str) -> tuple[str, str, str]:
+        """
+        Encrypts data
+        :param data: The data to encrypt
+        :return ciphertext, nonce, hexdigest: The encrypted data
+        """
+        cipher = AES.new(self.key, AES.MODE_GCM, nonce=os.urandom(12))
+        ciphertext = cipher.encrypt(plaintext.encode())
+        return ciphertext.hex(), cipher.nonce.hex(), cipher.hexdigest()
+
+    def decrypt(self, ciphertext: str, nonce: str, hexdigest: str):
+        """
+        Decrypts data using AES
+        :param data: The data to decrypt
+        :return: The decrypted data as a hexdigest
+        """
+        try:
+            cipher = AES.new(self.key, AES.MODE_GCM, nonce=bytes.fromhex(nonce))
+            plaintext = cipher.decrypt(bytes.fromhex(ciphertext))
+            cipher.hexverify(hexdigest)
+        except ValueError:
+            return -1
+        return plaintext.decode()
