@@ -62,5 +62,4 @@ def register():
     client.collection("users").document(email_hash).set(
         {"email": email_hash, "name": name, "password": password_hash}
     )
-
-    return {"email": email_hash, "pword": password_hash}, 201
+    return {"token": "fake-token"}, 201

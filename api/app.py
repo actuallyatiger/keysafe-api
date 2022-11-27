@@ -1,7 +1,9 @@
 from flask import Flask
+from flask_cors import CORS
 from auth import auth_bp
 
 app = Flask(__name__)
+cors = CORS(app)
 app.register_blueprint(auth_bp, url_prefix="/auth")
 
 
