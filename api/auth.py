@@ -1,11 +1,11 @@
 from flask import Blueprint, request
 from client import get_client
-from encryptor import Encryptor
+from cipher import Hasher
 
 auth_bp = Blueprint("auth_bp", __name__)
 
 client = get_client()
-hasher = Encryptor()
+hasher = Hasher()
 
 
 @auth_bp.route("/login", methods=["POST"])
@@ -26,7 +26,7 @@ def login():
         return {"error": "User not found."}, 404
 
     user = doc.to_dict()
-    valid = hasher.verify(user["password"], password)
+    valid = hasher.argon_verify(user["password"], password)
 
     # Check if the password is valid.
     if not valid:
@@ -51,7 +51,7 @@ def register():
         return {"error": "Email, name and password are required"}, 400
 
     email_hash = hasher.sha256_hash(email)
-    password_hash = hasher.hash(password)
+    password_hash = hasher.argon_hash(password)
 
     # Check email is not already registered
     doc = client.collection("users").document(email_hash).get()
