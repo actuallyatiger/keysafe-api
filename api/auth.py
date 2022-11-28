@@ -20,7 +20,7 @@ def login():
     email_hash = hasher.sha256_hash(email)
 
     # Get the user from the database.
-    doc = client.collection().document(email_hash).get()
+    doc = client.collection("users").document(email_hash).get()
 
     try:
         user = doc.to_dict()
