@@ -25,16 +25,18 @@ def login():
 
     # Get the user from the database.
     email_doc = client.collection("emails").document(email_hash)
+
+    # Return if user does not exist
+    if not email_doc.get().exists:
+        return {"error": "User does not exist"}, 400
+
+    # Get user_doc and get the password
     email_json = email_doc.get().to_dict()
-    if email_doc.get().exists:
-        user_doc = client.collection("users").document(email_json["user_id"]).get()
-        password_hash = user_doc.to_dict()["password"]
-    else:
-        password_hash = ""
+    user_doc = client.collection("users").document(email_json["user_id"]).get()
+    password_hash = user_doc.to_dict()["password"]
 
+    # Verify password
     valid_password = hasher.argon_verify(password_hash, password)
-
-    # Check if the user exists and the password is valid.
     if not valid_password:
         return {"error": "Username or password is invalid"}, 401
 
@@ -60,24 +62,27 @@ def register():
     if not (email and name and password):
         return {"error": "Email, name and password are required"}, 400
 
-    # User information
-    user_id = hasher.sha256_hash(email + str(datetime.now()))
+    # Hash email and password
     email_hash = hasher.sha256_hash(email)
     password_hash = hasher.argon_hash(password)
-    encrypted_name = encryptor.encrypt(name)
-    encrypted_email = encryptor.encrypt(email)
 
-    # Get user_id from emails collection and get the corresponding user
+    # Get the email_doc from the email_hash
     email_doc = client.collection("emails").document(email_hash)
 
     # Check email is not already registered
     if email_doc.get().exists:
         return {"error": "Email already exists"}, 400
 
+    # Encrypt name and email
+    encrypted_name = encryptor.encrypt(name)
+    encrypted_email = encryptor.encrypt(email)
+
+    # Create user id
+    user_id = hasher.sha256_hash(email + str(datetime.now()))
+
     # Add user to users collection
     email_doc.set({"user_id": user_id})
-    user_doc = client.collection("users").document(email_doc.get().to_dict()["user_id"])
-    user_doc.set(
+    client.collection("users").document(user_id).set(
         {
             "email": encrypted_email,
             "name": encrypted_name,
@@ -91,3 +96,20 @@ def register():
     ).set({"user_id": user_id})
 
     return {"token": jwt.create_token(user_id, session_id)}, 201
+
+
+@auth_bp.route("/logout", methods=["POST"])
+def logout():
+    """
+    Delete session from `sessions` database.
+    """
+    token_header = request.headers.get("Authorization")
+    token = token_header.split(" ")[1]
+
+    # Decode token
+    contents = jwt.decode_token(token)
+
+    # Delete session from database
+    client.collection("sessions").document(contents["sid"]).delete()
+
+    return {}, 200

@@ -26,7 +26,21 @@ class JWT:
             algorithm=self.algorithm,
         )
 
-    def verify_token(self, token: str) -> bool:
+    def decode_token(self, token: str) -> dict:
+        """
+        Decode a JWT token, without verification.
+        """
+        try:
+            return jwt.decode(
+                token,
+                self.key,
+                algorithms=[self.algorithm],
+                options={"verify_signature": False},
+            )
+        except jwt.InvalidTokenError:
+            return {"error": "Invalid token"}
+
+    def verify_token(self, token: str) -> dict | bool:
         """
         Verify a JWT token.
         """
@@ -34,6 +48,4 @@ class JWT:
             jwt.decode(token, self.key, algorithms=[self.algorithm])
             return True
         except jwt.ExpiredSignatureError:
-            return False
-        except jwt.InvalidTokenError:
             return False
