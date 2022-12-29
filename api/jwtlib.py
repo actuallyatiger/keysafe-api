@@ -40,12 +40,12 @@ class JWT:
         except jwt.InvalidTokenError:
             return {"error": "Invalid token"}
 
-    def verify_token(self, token: str) -> dict | bool:
+    def check_expired(self, token: str) -> bool:
         """
-        Verify a JWT token.
+        Check if a JWT token has expired.
         """
         try:
             jwt.decode(token, self.key, algorithms=[self.algorithm])
-            return True
-        except jwt.ExpiredSignatureError:
             return False
+        except jwt.ExpiredSignatureError:
+            return True
