@@ -21,6 +21,9 @@ def login():
     email = request.json["email"]
     password = request.json["password"]
 
+    if not (email and password):
+        return {"error": "Email and password are required"}, 400
+
     email_hash = hasher.sha256_hash(email)
 
     # Get the user from the database.
@@ -103,8 +106,7 @@ def logout():
     """
     Delete session from `sessions` database.
     """
-    token_header = request.headers.get("Authorization")
-    token = token_header.split(" ")[1]
+    token = request.headers.get("Authorization")
 
     # Decode token
     contents = jwt.decode_token(token)
