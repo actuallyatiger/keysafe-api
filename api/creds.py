@@ -33,3 +33,30 @@ def get_credentials(token):
         )
 
     return output, 200, {"Content-Type": "application/json"}
+
+
+@cred_bp.route("/getCredential/<string:cred_id>", methods=["GET"])
+@refresh_jwt
+def get_credential(token, cred_id: str):
+    """
+    Get a credential.
+    """
+    contents = jwt.decode_token(token)
+
+    cred = client.collection("credentials").document(cred_id).get()
+
+    if not cred.exists:
+        return {"error": "Credential not found"}, 404
+
+    cred_dict = cred.to_dict()
+
+    if cred_dict["user_id"] != contents["user_id"]:
+        return {"error": "Unauthorized"}, 401
+
+    return_cred = {k: cred_dict[k] for k in cred_dict if k != "user_id"}
+
+    return (
+        {"token": token, "cred": return_cred},
+        200,
+        {"Content-Type": "application/json"},
+    )
