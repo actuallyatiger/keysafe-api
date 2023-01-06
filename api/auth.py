@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from random import randint
 from flask import Blueprint, request
 from jwtlib import JWT
@@ -45,7 +45,12 @@ def login():
 
     client.collection("sessions").document(
         session_id := str(randint(0, 2**32 - 1))
-    ).set({"user_id": email_json["user_id"]})
+    ).set(
+        {
+            "user_id": email_json["user_id"],
+            "exp": datetime.now(timezone.utc) + timedelta(days=14),
+        }
+    )
 
     return {"token": jwt.create_token(email_json["user_id"], session_id)}, 200
 
@@ -96,7 +101,12 @@ def register():
     # Create a new session
     client.collection("sessions").document(
         session_id := str(randint(0, 2**32 - 1))
-    ).set({"user_id": user_id})
+    ).set(
+        {
+            "user_id": user_id,
+            "exp": datetime.now(timezone.utc) + timedelta(days=14),
+        }
+    )
 
     return {"token": jwt.create_token(user_id, session_id)}, 201
 
