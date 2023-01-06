@@ -15,14 +15,9 @@ def refresh_jwt(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
         # Check the Authorization header
-        authorization = request.headers.get("Authorization")
-        if not authorization:
+        token = request.headers.get("Authorization")
+        if not token:
             return {"error": "Missing Authorization header"}, 401
-
-        # Split the auth-scheme and the JWT
-        auth_scheme, token = authorization.split()
-        if auth_scheme.lower() != "bearer":
-            return {"error": "Invalid auth-scheme"}, 401
 
         # Decode the JWT to get the user ID and session ID
         data = jwt.decode_token(token)
@@ -36,7 +31,6 @@ def refresh_jwt(func):
             # If the JWT has expired, generate a new one
             if client.collection("sessions").document(session_id).get().exists:
                 token = jwt.create_token(user_id, session_id)
-                # Set the new JWT in the response header
             else:
                 return {"error": "Invalid session"}, 401
 
