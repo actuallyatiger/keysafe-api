@@ -31,8 +31,12 @@ def get_credentials(token):
     for cred in creds:
         cred_dict = cred.to_dict()
         output["creds"].append(
-            {k: cred_dict[k] for k in cred_dict if k not in ("password", "user_id")}
-            | {"id": cred.id}
+            {
+                k: cred_dict[k]
+                for k in cred_dict
+                if k not in {"email", "password", "user_id"}
+            }
+            | {"id": cred.id, "password": encryptor.decrypt(*cred_dict["password"])}
         )
 
     return output, 200, {"Content-Type": "application/json"}
@@ -56,7 +60,15 @@ def get_credential(token, cred_id: str):
     if cred_dict["user_id"] != contents["user_id"]:
         return {"error": "Unauthorized"}, 401
 
-    return_cred = {k: cred_dict[k] for k in cred_dict if k != "user_id"}
+    # Decrypt email and password, but not the name and url.
+    return_cred = {k: cred_dict[k] for k in cred_dict if k in {"name", "url"}}
+    return_cred.update(
+        {
+            k: encryptor.decrypt(*cred_dict[k])
+            for k in cred_dict
+            if k in {"email", "password"}
+        }
+    )
 
     return (
         {"token": token, "cred": return_cred},
