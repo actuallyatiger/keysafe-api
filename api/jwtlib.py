@@ -8,8 +8,8 @@ class JWT:
     Generating and verifying JWT tokens.
     """
 
-    def __init__(self):
-        self.key = os.environ.get("JWT_KEY")
+    def __init__(self, key=None):
+        self.key = key if key is not None else os.environ.get("JWT_KEY")
         self.algorithm = "HS256"
 
     def create_token(self, user_id: str, session_id: str) -> str:
