@@ -12,6 +12,7 @@ class TestJWT(unittest.TestCase):
 
     def setUp(self):
         self.jwt = JWT(key="test_key")
+        # pylint: disable=line-too-long
         self.predefined_token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoidXNlcl9pZCIsInNpZCI6InNlc3Npb25faWQiLCJleHAiOjE2NzQ2NDgwMDB9.rXDIpGj5-RAHrWzdLY6PSDzxFgBHi2Oat_6KSNHXKO4"
 
     def test_create_token(self):
