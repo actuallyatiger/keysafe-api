@@ -1,5 +1,5 @@
 import unittest
-from api.cipher import Hasher
+from api.cipher import Hasher, Encryptor
 
 
 class TestHasher(unittest.TestCase):
@@ -52,6 +52,37 @@ class TestHasher(unittest.TestCase):
 
         self.assertTrue(self.hasher.argon_verify(password_hash, password))
         self.assertFalse(self.hasher.argon_verify(password_hash, "invalidpassword"))
+
+
+class TestEncryptor(unittest.TestCase):
+    """
+    Test the Encryptor class
+    """
+
+    def setUp(self):
+        """
+        Create an instance of the Encryptor class
+        """
+        self.encryptor = Encryptor(key=b"test_key_padded_to_32_bytes.,-_!")
+
+    def test_encrypt(self):
+        """
+        Test that the encrypt function works as expected
+        """
+        plaintext = "plaintext"
+        # Nonce means that the ciphertext will be different every time,
+        # so only check if a ciphertext is returned
+        self.assertTrue(self.encryptor.encrypt(plaintext))
+
+    def test_decrypt(self):
+        """
+        Test that the decrypt function works as expected
+        """
+        plaintext = "plaintext"
+        ciphertext = self.encryptor.encrypt(plaintext)
+
+        self.assertEqual(self.encryptor.decrypt(*ciphertext), plaintext)
+        self.assertNotEqual(self.encryptor.decrypt(*ciphertext), "invalidplaintext")
 
 
 if __name__ == "__main__":

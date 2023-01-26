@@ -67,8 +67,8 @@ class Encryptor:
     Methods: encrypt, decrypt
     """
 
-    def __init__(self) -> None:
-        self.key = bytes.fromhex(os.environ.get("AES_KEY"))
+    def __init__(self, key=None) -> None:
+        self.key = key if key is not None else bytes.fromhex(os.environ.get("AES_KEY"))
 
     def encrypt(self, plaintext: str) -> tuple[str, str, str]:
         """
