@@ -36,7 +36,11 @@ def get_credentials(token):
                 for k in cred_dict
                 if k not in {"email", "password", "user_id"}
             }
-            | {"id": cred.id, "password": encryptor.decrypt(*cred_dict["password"])}
+            | {
+                "id": cred.id,
+                "email": encryptor.decrypt(*cred_dict["email"]),
+                "password": encryptor.decrypt(*cred_dict["password"]),
+            }
         )
 
     return output, 200, {"Content-Type": "application/json"}
