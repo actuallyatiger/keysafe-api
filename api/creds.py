@@ -133,3 +133,27 @@ def update_credential(token, cred_id: str):
     cred.update(cred_sanitized)
 
     return {"token": token}, 200, {"Content-Type": "application/json"}
+
+
+@cred_bp.route("/deleteCredential/<string:cred_id>", methods=["DELETE"])
+@refresh_jwt
+def delete_credential(token, cred_id: str):
+    """
+    Delete a credential.
+    """
+    contents = jwt.decode_token(token)
+
+    cred = client.collection("credentials").document(cred_id)
+    cred_got = cred.get()
+
+    if not cred_got.exists:
+        return {"error": "Credential not found"}, 404
+
+    cred_dict = cred_got.to_dict()
+
+    if cred_dict["user_id"] != contents["user_id"]:
+        return {"error": "Unauthorized"}, 401
+
+    cred.delete()
+
+    return {"token": token}, 200, {"Content-Type": "application/json"}
