@@ -104,7 +104,7 @@ def create_credential(token):
     return {"token": token, "id": cred.id}, 200, {"Content-Type": "application/json"}
 
 
-@cred_bp.route("/setCredential/<string:cred_id>", methods=["POST"])
+@cred_bp.route("/setCredential/<string:cred_id>", methods=["PUT"])
 @refresh_jwt
 def update_credential(token, cred_id: str):
     """
