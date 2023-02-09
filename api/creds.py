@@ -106,7 +106,7 @@ def create_credential(token):
     cred.set(
         {
             "user_id": contents["user_id"],
-            "name": "New Credential",
+            "name": "",
             "email": encryptor.encrypt(""),
             "password": encryptor.encrypt(""),
             "url": "",
