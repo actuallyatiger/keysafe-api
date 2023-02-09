@@ -20,11 +20,23 @@ def get_credentials(token):
     """
     contents = jwt.decode_token(token)
 
-    creds = (
-        client.collection("credentials")
-        .where("user_id", "==", contents["user_id"])
-        .stream()
-    )
+    try:
+        search_term = request.json["search"]
+        creds = (
+            client.collection("credentials")
+            .where("user_id", "==", contents["user_id"])
+            .where("name", "==", search_term)
+            .order_by("name")
+            .stream()
+        )
+
+    except KeyError:
+        creds = (
+            client.collection("credentials")
+            .where("user_id", "==", contents["user_id"])
+            .order_by("name")
+            .stream()
+        )
 
     output = {"token": token, "creds": []}
 
