@@ -1,7 +1,8 @@
 from functools import wraps
+
 from client import get_client
-from jwtlib import JWT
 from flask import request
+from jwtlib import JWT
 
 client = get_client()
 jwt = JWT()

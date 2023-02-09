@@ -1,9 +1,10 @@
 from datetime import datetime, timedelta, timezone
 from random import randint
+
+from cipher import Encryptor, Hasher
+from client import get_client
 from flask import Blueprint, request
 from jwtlib import JWT
-from client import get_client
-from cipher import Hasher, Encryptor
 
 auth_bp = Blueprint("auth_bp", __name__)
 

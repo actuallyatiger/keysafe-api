@@ -1,8 +1,9 @@
-from hmac import compare_digest
 import os
-from Crypto.Hash import SHA256
-from Crypto.Cipher import AES
+from hmac import compare_digest
+
 import argon2
+from Crypto.Cipher import AES
+from Crypto.Hash import SHA256
 
 
 class Hasher:

@@ -1,7 +1,7 @@
-from flask import Flask
-from flask_cors import CORS
 from auth import auth_bp
 from creds import cred_bp
+from flask import Flask
+from flask_cors import CORS
 
 app = Flask(__name__)
 cors = CORS(app)
