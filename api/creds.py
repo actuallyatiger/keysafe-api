@@ -21,11 +21,11 @@ def get_credentials(token):
     contents = jwt.decode_token(token)
 
     try:
-        search_term = request.json["search"]
+        search_term = request.args["search"]
         creds = (
             client.collection("credentials")
             .where("user_id", "==", contents["user_id"])
-            .where("name", "==", search_term)
+            .where("name_lower", "==", search_term.lower())
             .order_by("name")
             .stream()
         )
@@ -46,7 +46,7 @@ def get_credentials(token):
             {
                 k: cred_dict[k]
                 for k in cred_dict
-                if k not in {"email", "password", "user_id"}
+                if k not in {"email", "password", "user_id", "name_lower"}
             }
             | {
                 "id": cred.id,
@@ -107,6 +107,7 @@ def create_credential(token):
         {
             "user_id": contents["user_id"],
             "name": "",
+            "name_lower": "",
             "email": encryptor.encrypt(""),
             "password": encryptor.encrypt(""),
             "url": "",
@@ -137,8 +138,11 @@ def update_credential(token, cred_id: str):
 
     cred_sanitized = {}
     for key in cred_dict:
-        if key in {"name", "url"}:
+        if key in {"url"}:
             cred_sanitized[key] = request.json[key]
+        elif key == "name":
+            cred_sanitized[key] = request.json[key]
+            cred_sanitized[key] = request.json[key].lower()
         elif key in {"email", "password"}:
             cred_sanitized[key] = encryptor.encrypt(request.json[key])
 
