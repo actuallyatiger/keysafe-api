@@ -140,10 +140,10 @@ def update_credential(token, cred_id: str):
     for key in cred_dict:
         if key in {"url"}:
             cred_sanitized[key] = request.json[key]
-        elif key == "name":
+        if key == "name":
             cred_sanitized[key] = request.json[key]
-            cred_sanitized[key] = request.json[key].lower()
-        elif key in {"email", "password"}:
+            cred_sanitized["name_lower"] = request.json[key].lower()
+        if key in {"email", "password"}:
             cred_sanitized[key] = encryptor.encrypt(request.json[key])
 
     cred.update(cred_sanitized)
