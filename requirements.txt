@@ -30,5 +30,5 @@ python-dotenv==0.21.0
 requests==2.31.0
 rsa==4.9
 six==1.16.0
-urllib3==1.26.13
+urllib3==1.26.18
 Werkzeug==2.2.3
